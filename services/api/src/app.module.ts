@@ -2,30 +2,29 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 
-// TODO: Importar módulos da aplicação aqui
-// import { AuthModule } from './application/auth/auth.module';
-// import { UsersModule } from './application/users/users.module';
-// import { WeatherModule } from './application/weather/weather.module';
-// import { InsightsModule } from './application/insights/insights.module';
+import { DatabaseModule } from './infrastructure/database/database.module';
+import { AuthModule } from './modules/auth.module';
+import { UsersModule } from './modules/users.module';
+import { WeatherModule } from './modules/weather.module';
+import { InsightsModule } from './modules/insights.module';
+import { JwtStrategy } from './config/jwt.strategy';
 
+/**
+ * Módulo raiz da aplicação
+ */
 @Module({
   imports: [
-    // Configuração de variáveis de ambiente
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
     }),
-
-    // Conexão com MongoDB
-    MongooseModule.forRoot(process.env.MONGODB_URI || 'mongodb://localhost:27017/gdash-weather'),
-
-    // Módulos da aplicação (descomente conforme implementar)
-    // AuthModule,
-    // UsersModule,
-    // WeatherModule,
-    // InsightsModule,
+    MongooseModule.forFeature([{ name: 'User', schema: require('./infrastructure/database/mongodb/schemas/user.schema').UserSchema }]),
+    DatabaseModule,
+    AuthModule,
+    UsersModule,
+    WeatherModule,
+    InsightsModule,
   ],
-  controllers: [],
-  providers: [],
+  providers: [JwtStrategy],
 })
 export class AppModule {}
