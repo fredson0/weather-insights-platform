@@ -1,35 +1,61 @@
-import { Routes, Route } from 'react-router-dom';
-
-// TODO: Importar páginas conforme implementar
-// import { LoginPage } from '@features/auth/components/LoginPage';
-// import { DashboardPage } from '@features/dashboard/components/DashboardPage';
-// import { UsersPage } from '@features/users/components/UsersPage';
-// import { ExplorePage } from '@features/explore/components/ExplorePage';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { ProtectedRoute, PublicRoute } from './core/router/ProtectedRoute';
+import { LoginPage } from './features/auth/pages/LoginPage';
+import { RegisterPage } from './features/auth/pages/RegisterPage';
+import { DashboardPage } from './features/dashboard/pages/DashboardPage';
+import { ExplorePage } from './features/explore/pages/ExplorePage';
+import { UsersPage } from './features/users/pages/UsersPage';
 
 function App() {
   return (
     <div className="min-h-screen bg-background">
       <Routes>
-        {/* TODO: Descomente conforme implementar as páginas */}
-        {/* <Route path="/login" element={<LoginPage />} /> */}
-        {/* <Route path="/" element={<DashboardPage />} /> */}
-        {/* <Route path="/users" element={<UsersPage />} /> */}
-        {/* <Route path="/explore" element={<ExplorePage />} /> */}
-        
-        {/* Rota temporária */}
+        {/* Public Routes */}
         <Route 
-          path="*" 
+          path="/login" 
           element={
-            <div className="flex items-center justify-center min-h-screen">
-              <div className="text-center">
-                <h1 className="text-4xl font-bold mb-4">🌦️ GDASH Weather Insights</h1>
-                <p className="text-muted-foreground">
-                  Frontend configurado! Implemente as páginas em /src/features/
-                </p>
-              </div>
-            </div>
+            <PublicRoute>
+              <LoginPage />
+            </PublicRoute>
           } 
         />
+        <Route 
+          path="/register" 
+          element={
+            <PublicRoute>
+              <RegisterPage />
+            </PublicRoute>
+          } 
+        />
+
+        {/* Protected Routes */}
+        <Route 
+          path="/" 
+          element={
+            <ProtectedRoute>
+              <DashboardPage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/explore" 
+          element={
+            <ProtectedRoute>
+              <ExplorePage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/users" 
+          element={
+            <ProtectedRoute>
+              <UsersPage />
+            </ProtectedRoute>
+          } 
+        />
+
+        {/* Fallback */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </div>
   );

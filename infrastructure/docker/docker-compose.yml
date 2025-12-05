@@ -64,9 +64,7 @@ services:
       ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@gdash.com}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-Admin@123456}
       ADMIN_NAME: ${ADMIN_NAME:-Administrator}
-      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
-      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
-      EXTERNAL_API_BASE_URL: ${EXTERNAL_API_BASE_URL:-https://pokeapi.co/api/v2}
+      GOOGLE_GEMINI_API_KEY: ${GOOGLE_GEMINI_API_KEY:-}
     volumes:
       - ../../services/api/src:/app/src
       - /app/node_modules
@@ -93,19 +91,18 @@ services:
     container_name: gdash-collector
     restart: unless-stopped
     environment:
-      COLLECTOR_INTERVAL: ${COLLECTOR_INTERVAL:-3600}
-      WEATHER_API_URL: ${WEATHER_API_URL:-https://api.open-meteo.com/v1/forecast}
-      WEATHER_LATITUDE: ${WEATHER_LATITUDE:--23.5505}
-      WEATHER_LONGITUDE: ${WEATHER_LONGITUDE:--46.6333}
-      WEATHER_TIMEZONE: ${WEATHER_TIMEZONE:-America/Sao_Paulo}
+      COLLECTION_INTERVAL: ${COLLECTION_INTERVAL:-60}
+      LATITUDE: ${LATITUDE:--12.9714}
+      LONGITUDE: ${LONGITUDE:--38.5014}
+      LOCATION_NAME: ${LOCATION_NAME:-Salvador, BA}
+      HTTP_TIMEOUT: ${HTTP_TIMEOUT:-10}
       RABBITMQ_HOST: ${RABBITMQ_HOST:-rabbitmq}
       RABBITMQ_PORT: ${RABBITMQ_PORT:-5672}
       RABBITMQ_USER: ${RABBITMQ_USER:-admin}
       RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-admin123}
-      RABBITMQ_VHOST: ${RABBITMQ_VHOST:-/}
       RABBITMQ_QUEUE: ${RABBITMQ_QUEUE:-weather-data}
       RABBITMQ_EXCHANGE: ${RABBITMQ_EXCHANGE:-weather-exchange}
-      RABBITMQ_ROUTING_KEY: ${RABBITMQ_ROUTING_KEY:-weather.collected}
+      RABBITMQ_ROUTING_KEY: ${RABBITMQ_ROUTING_KEY:-weather.data}
     volumes:
       - ../../services/collector/src:/app/src
     depends_on:
@@ -151,13 +148,13 @@ services:
       dockerfile: Dockerfile
       target: development
       args:
-        VITE_API_URL: ${VITE_API_URL:-http://localhost:3000/api}
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:3000}
     container_name: gdash-web
     restart: unless-stopped
     ports:
       - "5173:5173"
     environment:
-      VITE_API_URL: ${VITE_API_URL:-http://localhost:3000/api}
+      VITE_API_URL: ${VITE_API_URL:-http://localhost:3000}
       VITE_APP_TITLE: ${VITE_APP_TITLE:-GDASH Weather Insights}
     volumes:
       - ../../services/web/src:/app/src

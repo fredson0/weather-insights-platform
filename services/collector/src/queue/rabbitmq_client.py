@@ -2,94 +2,113 @@
 Cliente RabbitMQ para envio de mensagens
 """
 
-import os
 import json
 import pika
 import logging
+from typing import Dict, Optional
 
 logger = logging.getLogger(__name__)
 
 class RabbitMQClient:
     """Cliente para comunicação com RabbitMQ"""
     
-    def __init__(self):
-        self.host = os.getenv('RABBITMQ_HOST', 'localhost')
-        self.port = int(os.getenv('RABBITMQ_PORT', 5672))
-        self.user = os.getenv('RABBITMQ_USER', 'admin')
-        self.password = os.getenv('RABBITMQ_PASSWORD', 'admin123')
-        self.vhost = os.getenv('RABBITMQ_VHOST', '/')
-        self.queue = os.getenv('RABBITMQ_QUEUE', 'weather-data')
-        self.exchange = os.getenv('RABBITMQ_EXCHANGE', 'weather-exchange')
-        self.routing_key = os.getenv('RABBITMQ_ROUTING_KEY', 'weather.collected')
+    def __init__(self, host: str, port: int, user: str, password: str, 
+                 exchange: str, queue: str, routing_key: str):
+        self.host = host
+        self.port = port
+        self.user = user
+        self.password = password
+        self.exchange = exchange
+        self.queue = queue
+        self.routing_key = routing_key
         
-        self.connection = None
-        self.channel = None
+        self.connection: Optional[pika.BlockingConnection] = None
+        self.channel: Optional[pika.channel.Channel] = None
         
-    def connect(self):
-        """Estabelece conexão com RabbitMQ"""
+    def connect(self) -> None:
+        """Estabelece conexão com RabbitMQ e declara exchange/queue"""
         try:
-            # TODO: Implementar conexão com RabbitMQ
-            # credentials = pika.PlainCredentials(self.user, self.password)
-            # parameters = pika.ConnectionParameters(
-            #     host=self.host,
-            #     port=self.port,
-            #     virtual_host=self.vhost,
-            #     credentials=credentials
-            # )
-            # self.connection = pika.BlockingConnection(parameters)
-            # self.channel = self.connection.channel()
+            credentials = pika.PlainCredentials(self.user, self.password)
+            parameters = pika.ConnectionParameters(
+                host=self.host,
+                port=self.port,
+                credentials=credentials,
+                heartbeat=600,
+                blocked_connection_timeout=300
+            )
             
-            # Declarar exchange e queue
-            # self.channel.exchange_declare(
-            #     exchange=self.exchange,
-            #     exchange_type='topic',
-            #     durable=True
-            # )
-            # self.channel.queue_declare(queue=self.queue, durable=True)
-            # self.channel.queue_bind(
-            #     exchange=self.exchange,
-            #     queue=self.queue,
-            #     routing_key=self.routing_key
-            # )
+            self.connection = pika.BlockingConnection(parameters)
+            self.channel = self.connection.channel()
             
-            logger.info(f"Conectado ao RabbitMQ: {self.host}:{self.port}")
+            # Declarar exchange do tipo direct (mensagens roteadas por routing_key exata)
+            self.channel.exchange_declare(
+                exchange=self.exchange,
+                exchange_type='direct',
+                durable=True
+            )
             
+            # Declarar fila durável (mensagens persistem após restart do RabbitMQ)
+            self.channel.queue_declare(queue=self.queue, durable=True)
+            
+            # Bind queue ao exchange com routing_key
+            self.channel.queue_bind(
+                exchange=self.exchange,
+                queue=self.queue,
+                routing_key=self.routing_key
+            )
+            
+            logger.info(f"✅ Conectado ao RabbitMQ {self.host}:{self.port} - Exchange: {self.exchange}, Queue: {self.queue}")
+            
+        except pika.exceptions.AMQPConnectionError as e:
+            logger.error(f"❌ Erro de conexão com RabbitMQ: {e}")
+            raise
         except Exception as e:
-            logger.error(f"Erro ao conectar no RabbitMQ: {e}")
+            logger.error(f"❌ Erro inesperado ao conectar no RabbitMQ: {e}")
             raise
             
-    def send_message(self, data: dict):
+    def publish(self, data: Dict) -> None:
         """
-        Envia mensagem para a fila
+        Publica mensagem na fila RabbitMQ
         
         Args:
-            data: Dados a serem enviados
+            data: Dicionário com dados climáticos (WeatherData.to_dict())
         """
         try:
-            if not self.channel:
+            if not self.channel or self.connection.is_closed:
+                logger.info("Reconectando ao RabbitMQ...")
                 self.connect()
             
-            # TODO: Implementar envio de mensagem
-            # message = json.dumps(data)
-            # self.channel.basic_publish(
-            #     exchange=self.exchange,
-            #     routing_key=self.routing_key,
-            #     body=message,
-            #     properties=pika.BasicProperties(
-            #         delivery_mode=2,  # Mensagem persistente
-            #         content_type='application/json'
-            #     )
-            # )
+            message = json.dumps(data, ensure_ascii=False)
             
-            logger.info(f"Mensagem enviada para fila: {self.queue}")
+            self.channel.basic_publish(
+                exchange=self.exchange,
+                routing_key=self.routing_key,
+                body=message,
+                properties=pika.BasicProperties(
+                    delivery_mode=2,  # Mensagem persistente (sobrevive a restart do RabbitMQ)
+                    content_type='application/json'
+                )
+            )
             
+            logger.info(f"📤 Mensagem publicada na fila {self.queue}: {data.get('location')} - {data.get('temperature')}°C")
+            
+        except pika.exceptions.AMQPError as e:
+            logger.error(f"❌ Erro AMQP ao publicar mensagem: {e}")
+            self.close()
+            raise
+        except json.JSONEncoder as e:
+            logger.error(f"❌ Erro ao serializar dados para JSON: {e}")
+            raise
         except Exception as e:
-            logger.error(f"Erro ao enviar mensagem: {e}")
+            logger.error(f"❌ Erro inesperado ao publicar mensagem: {e}")
             self.close()
             raise
             
-    def close(self):
-        """Fecha conexão com RabbitMQ"""
-        if self.connection and not self.connection.is_closed:
-            self.connection.close()
-            logger.info("Conexão com RabbitMQ fechada")
+    def close(self) -> None:
+        """Fecha conexão com RabbitMQ de forma segura"""
+        try:
+            if self.connection and not self.connection.is_closed:
+                self.connection.close()
+                logger.info("🔌 Conexão com RabbitMQ fechada")
+        except Exception as e:
+            logger.error(f"⚠️ Erro ao fechar conexão com RabbitMQ: {e}")

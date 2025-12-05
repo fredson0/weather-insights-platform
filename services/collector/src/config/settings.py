@@ -10,23 +10,27 @@ load_dotenv()
 class Settings:
     """Configurações da aplicação"""
     
-    # Intervalo de coleta
-    COLLECTOR_INTERVAL = int(os.getenv('COLLECTOR_INTERVAL', 3600))
+    # Localização (Salvador, BA)
+    LOCATION_NAME = 'Salvador, BA'
+    LATITUDE = float(os.getenv('LATITUDE', '-12.9714'))
+    LONGITUDE = float(os.getenv('LONGITUDE', '-38.5014'))
     
-    # API de clima
-    WEATHER_API_URL = os.getenv('WEATHER_API_URL', 'https://api.open-meteo.com/v1/forecast')
-    WEATHER_LATITUDE = os.getenv('WEATHER_LATITUDE', '-23.5505')
-    WEATHER_LONGITUDE = os.getenv('WEATHER_LONGITUDE', '-46.6333')
-    WEATHER_TIMEZONE = os.getenv('WEATHER_TIMEZONE', 'America/Sao_Paulo')
+    # Open-Meteo API
+    OPEN_METEO_API_URL = 'https://api.open-meteo.com/v1/forecast'
+    HTTP_TIMEOUT = int(os.getenv('HTTP_TIMEOUT', '10'))
     
     # RabbitMQ
     RABBITMQ_HOST = os.getenv('RABBITMQ_HOST', 'localhost')
     RABBITMQ_PORT = int(os.getenv('RABBITMQ_PORT', 5672))
     RABBITMQ_USER = os.getenv('RABBITMQ_USER', 'admin')
     RABBITMQ_PASSWORD = os.getenv('RABBITMQ_PASSWORD', 'admin123')
-    RABBITMQ_VHOST = os.getenv('RABBITMQ_VHOST', '/')
-    RABBITMQ_QUEUE = os.getenv('RABBITMQ_QUEUE', 'weather-data')
     RABBITMQ_EXCHANGE = os.getenv('RABBITMQ_EXCHANGE', 'weather-exchange')
-    RABBITMQ_ROUTING_KEY = os.getenv('RABBITMQ_ROUTING_KEY', 'weather.collected')
+    RABBITMQ_QUEUE = os.getenv('RABBITMQ_QUEUE', 'weather-data')
+    RABBITMQ_ROUTING_KEY = os.getenv('RABBITMQ_ROUTING_KEY', 'weather.data')
+    
+    # Intervalo de coleta (minutos)
+    COLLECTION_INTERVAL_MINUTES = int(os.getenv('COLLECTION_INTERVAL', '60'))
+    COLLECTION_INTERVAL_SECONDS = COLLECTION_INTERVAL_MINUTES * 60
 
 settings = Settings()
+

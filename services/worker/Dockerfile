@@ -1,9 +1,9 @@
-FROM golang:1.21-alpine AS builder
+FROM golang:1.23-alpine AS builder
 
 WORKDIR /app
 
 # Copiar go mod files
-COPY go.mod go.sum ./
+COPY go.mod ./
 RUN go mod download
 
 # Copiar código

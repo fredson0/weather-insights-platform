@@ -16,12 +16,11 @@ type Config struct {
 	APIBaseURL string
 
 	// RabbitMQ
-	RabbitMQHost       string
-	RabbitMQPort       int
-	RabbitMQUser       string
-	RabbitMQPassword   string
-	RabbitMQVHost      string
-	RabbitMQQueue      string
+	RabbitMQHost     string
+	RabbitMQPort     int
+	RabbitMQUser     string
+	RabbitMQPassword string
+	RabbitMQQueue    string
 }
 
 // Load carrega as configurações das variáveis de ambiente
@@ -35,13 +34,12 @@ func Load() *Config {
 		// API
 		APIBaseURL: getEnv("API_BASE_URL", "http://localhost:3000"),
 
-		// RabbitMQ
-		RabbitMQHost:     getEnv("RABBITMQ_HOST", "localhost"),
-		RabbitMQPort:     getEnvAsInt("RABBITMQ_PORT", 5672),
-		RabbitMQUser:     getEnv("RABBITMQ_USER", "admin"),
-		RabbitMQPassword: getEnv("RABBITMQ_PASSWORD", "admin123"),
-		RabbitMQVHost:    getEnv("RABBITMQ_VHOST", "/"),
-		RabbitMQQueue:    getEnv("RABBITMQ_QUEUE", "weather-data"),
+	// RabbitMQ
+	RabbitMQHost:     getEnv("RABBITMQ_HOST", "localhost"),
+	RabbitMQPort:     getEnvAsInt("RABBITMQ_PORT", 5672),
+	RabbitMQUser:     getEnv("RABBITMQ_USER", "admin"),
+	RabbitMQPassword: getEnv("RABBITMQ_PASSWORD", "admin123"),
+	RabbitMQQueue:    getEnv("RABBITMQ_QUEUE", "weather-data"),
 	}
 }
 
