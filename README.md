@@ -1,3 +1,193 @@
+# GDASH Weather Insights
+
+Sistema full-stack de monitoramento climático em tempo real com insights gerados por IA.
+
+## Vídeo de Apresentação
+
+Link: https://www.youtube.com/watch?v=2C0LK7ftcAo&feature=youtu.be
+
+---
+
+## Sobre o Projeto
+
+Sistema completo de monitoramento climático que integra múltiplas tecnologias para coletar, processar e exibir dados meteorológicos em tempo real, com geração automática de insights por IA.
+
+### Principais Funcionalidades
+
+- Coleta automática de dados climáticos de Salvador/BA a cada 60 segundos
+- Pipeline de dados: Python → RabbitMQ → Go → NestJS → MongoDB
+- Dashboard interativo com gráficos em tempo real
+- Geração automática de insights de IA sobre condições climáticas
+- Sistema de autenticação JWT com gerenciamento de usuários
+- Exportação de dados em CSV e XLSX
+- Orquestração completa via Docker Compose
+
+### Tecnologias Utilizadas
+
+**Backend:**
+- NestJS (TypeScript) com Clean Architecture
+- MongoDB 7.0 com Mongoose ODM
+- JWT para autenticação
+- Swagger para documentação da API
+
+**Frontend:**
+- React 18 + Vite
+- TypeScript com strict mode
+- Tailwind CSS + shadcn/ui
+- Recharts para visualização de dados
+
+**Pipeline de Dados:**
+- Python 3.11 (Collector - Open-Meteo API)
+- RabbitMQ 3.12 (Message Broker)
+- Go 1.21 (Worker de processamento)
+
+**Infraestrutura:**
+- Docker + Docker Compose
+- 6 containers orquestrados com health checks
+
+---
+
+## Como Executar
+
+### Pré-requisitos
+
+- Docker Desktop instalado e em execução
+- Git para clonar o repositório
+
+### Passo a Passo
+
+1. Clone o repositório
+```bash
+git clone https://github.com/fredson0/desafio-gdash-2025-02.git
+cd desafio-gdash-2025-02
+```
+
+2. Inicie todos os serviços
+```bash
+cd infrastructure/docker
+docker compose up -d
+```
+
+3. Aguarde os containers iniciarem (20-30 segundos)
+
+4. Acesse as aplicações
+
+- Frontend: http://localhost:5173
+- API/Swagger: http://localhost:3000/api
+- RabbitMQ Management: http://localhost:15672 (guest/guest)
+
+### Credenciais Padrão
+
+O sistema cria automaticamente um usuário administrador:
+
+- Email: admin@example.com
+- Senha: 123456
+
+---
+
+## Endpoints Principais
+
+### Autenticação
+- `POST /api/auth/register` - Registrar novo usuário
+- `POST /api/auth/login` - Login
+
+### Dados Climáticos
+- `GET /api/weather` - Listar dados históricos
+- `GET /api/weather/export/csv` - Exportar CSV
+- `GET /api/weather/export/xlsx` - Exportar Excel
+
+### Insights de IA
+- `POST /api/insights/generate` - Gerar novo insight
+- `GET /api/insights` - Listar insights
+
+### Usuários (Admin)
+- `GET /api/users` - Listar usuários
+- `POST /api/users` - Criar usuário
+- PATCH /api/users/:id - Atualizar usuário
+- DELETE /api/users/:id - Remover usuário
+
+Documentação completa: http://localhost:3000/api
+
+---
+
+## Arquitetura
+
+### Pipeline de Dados
+
+```
+┌─────────────┐      ┌──────────┐      ┌─────────┐      ┌─────────┐
+│   Python    │──▶│  RabbitMQ  │──▶│   Go    │──▶│ NestJS  │
+│  Collector  │      │   Queue    │      │  Worker │      │   API   │
+└─────────────┘      └──────────┘      └─────────┘      └─────────┘
+                                                              │
+                                                              ▼
+                                                        ┌─────────┐
+                                                        │ MongoDB │
+                                                        └─────────┘
+                                                              │
+                                                              ▼
+                                                        ┌─────────┐
+                                                        │  React  │
+                                                        │Frontend │
+                                                        └─────────┘
+```
+
+### Estrutura do Backend (Clean Architecture)
+
+```
+services/api/src/
+├── core/              # Domínio e Casos de Uso
+│   ├── domain/
+│   │   ├── entities/
+│   │   ├── repositories/
+│   │   └── use-cases/
+│   └── ports/
+├── application/       # Services (Orquestração)
+├── infrastructure/    # Implementações (MongoDB, RabbitMQ, IA)
+└── presentation/      # Controllers e DTOs
+```
+
+---
+
+## Verificação do Sistema
+
+Para verificar se todos os serviços estão rodando:
+
+```bash
+docker compose ps
+```
+
+Todos os 6 containers devem estar "healthy" ou "running":
+- `gdash-mongodb`
+- `gdash-rabbitmq`
+- `gdash-api`
+- `gdash-collector`
+- `gdash-worker`
+- `gdash-web`
+
+Para ver logs de um serviço específico:
+```bash
+docker logs gdash-api -f
+```
+
+---
+
+## Para Encerrar
+
+```bash
+docker compose down
+```
+
+---
+
+## Autor
+
+Fredson Santana Machado Filho
+
+Desenvolvido como parte do desafio técnico GDASH 2025/02
+
+---
+
 # Desafio para o processo seletivo GDASH 2025/02
 
 Repositório destinado aos interessados em participar do processo seletivo GDASH 2025/02.

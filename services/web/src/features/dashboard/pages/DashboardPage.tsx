@@ -27,7 +27,7 @@ export function DashboardPage() {
 
   const handleExport = async (format: 'csv' | 'xlsx') => {
     try {
-      const response = await api.get(`/weather/export?format=${format}`, {
+      const response = await api.get(`/weather/export/${format}`, {
         responseType: 'blob',
       });
       

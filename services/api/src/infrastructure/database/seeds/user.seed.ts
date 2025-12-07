@@ -27,7 +27,7 @@ export class UserSeed implements OnModuleInit {
       const existingUser = await this.userModel.findOne({ email: defaultEmail }).exec();
       
       if (existingUser) {
-        console.log('✅ Usuário padrão já existe:', defaultEmail);
+        console.log('Usuário padrão já existe:', defaultEmail);
         return;
       }
 
@@ -44,9 +44,9 @@ export class UserSeed implements OnModuleInit {
 
       await defaultUser.save();
       
-      console.log('🌱 Usuário padrão criado com sucesso!');
-      console.log(`📧 Email: ${defaultEmail}`);
-      console.log(`🔑 Senha: ${defaultPassword}`);
+      console.log('Usuário padrão criado com sucesso!');
+      console.log(`Email: ${defaultEmail}`);
+      console.log(`Senha: ${defaultPassword}`);
     } catch (error) {
       console.error('❌ Erro ao criar usuário padrão:', error.message);
     }
