@@ -28,7 +28,7 @@ func NewClient(baseURL string) *Client {
 // SendWeatherData envia dados climáticos para a API NestJS
 func (c *Client) SendWeatherData(data []byte) error {
 	// Endpoint da API NestJS (WeatherController.create)
-	url := fmt.Sprintf("%s/weather", c.baseURL)
+	url := fmt.Sprintf("%s/api/weather", c.baseURL)
 
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(data))
 	if err != nil {

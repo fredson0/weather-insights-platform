@@ -28,8 +28,8 @@ export interface CreateWeatherDataDTO {
   pressure: number;
   cloudCover: number;
   weatherCode: number;
-  timestamp: Date;
-  source: string;
+  timestamp?: Date;
+  source?: string;
 }
 
 export interface WeatherQueryParams {

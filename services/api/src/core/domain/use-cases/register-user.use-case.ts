@@ -1,3 +1,4 @@
+import * as bcrypt from 'bcrypt';
 import { User, CreateUserDTO, UserRole } from '../entities/user.entity';
 import { IUserRepository } from '../repositories/user.repository.interface';
 

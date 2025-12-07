@@ -5,8 +5,8 @@ import {
   Insight,
   CreateInsightDTO,
   InsightQueryParams,
-} from '../../../../core/domain/entities/insight.entity';
-import { IInsightRepository } from '../../../../core/domain/repositories/insight.repository.interface';
+} from '../../../core/domain/entities/insight.entity';
+import { IInsightRepository } from '../../../core/domain/repositories/insight.repository.interface';
 import { InsightDocument } from '../mongodb/schemas/insight.schema';
 
 /**
@@ -21,13 +21,29 @@ export class MongoInsightRepository implements IInsightRepository {
     private readonly insightModel: Model<InsightDocument>,
   ) {}
 
+  private mapToEntity(doc: any): Insight {
+    return {
+      id: doc._id?.toString() || doc.id,
+      type: doc.type,
+      priority: doc.priority,
+      title: doc.title,
+      description: doc.description,
+      aiProvider: doc.aiProvider,
+      location: doc.location,
+      relatedWeatherDataIds: doc.relatedWeatherDataIds || [],
+      metadata: doc.metadata || {},
+      generatedAt: doc.createdAt || new Date(),
+      createdAt: doc.createdAt || new Date(),
+    };
+  }
+
   /**
    * Criar um novo insight
    */
   async create(data: CreateInsightDTO): Promise<Insight> {
     const insight = new this.insightModel(data);
     const saved = await insight.save();
-    return saved.toObject() as Insight;
+    return this.mapToEntity(saved.toObject());
   }
 
   /**
@@ -35,44 +51,45 @@ export class MongoInsightRepository implements IInsightRepository {
    */
   async findById(id: string): Promise<Insight | null> {
     const insight = await this.insightModel.findById(id).exec();
-    return insight ? (insight.toObject() as Insight) : null;
+    return insight ? this.mapToEntity(insight.toObject()) : null;
   }
 
   /**
    * Buscar insights com filtros
    */
   async findAll(params: InsightQueryParams): Promise<Insight[]> {
-    const query = this.insightModel.find();
+    const filter: any = {};
 
     if (params.type) {
-      query.where('type').equals(params.type);
+      filter.type = params.type;
     }
 
     if (params.priority) {
-      query.where('priority').equals(params.priority);
+      filter.priority = params.priority;
     }
 
     if (params.location) {
-      query.where('location').equals(params.location);
+      filter.location = params.location;
     }
 
-    if (params.startDate && params.endDate) {
-      query.where('generatedAt').gte(params.startDate).lte(params.endDate);
+    if (params.startDate || params.endDate) {
+      filter.createdAt = {};
+      if (params.startDate) {
+        filter.createdAt.$gte = params.startDate;
+      }
+      if (params.endDate) {
+        filter.createdAt.$lte = params.endDate;
+      }
     }
 
-    // Ordenar por prioridade (desc) e data de geração (desc)
-    query.sort({ priority: -1, generatedAt: -1 });
+    const insights = await this.insightModel
+      .find(filter)
+      .sort({ priority: -1, createdAt: -1 })
+      .skip(params.offset || 0)
+      .limit(params.limit || 50)
+      .exec();
 
-    if (params.offset) {
-      query.skip(params.offset);
-    }
-
-    if (params.limit) {
-      query.limit(params.limit);
-    }
-
-    const insights = await query.exec();
-    return insights.map((insight) => insight.toObject() as Insight);
+    return insights.map((insight) => this.mapToEntity(insight.toObject()));
   }
 
   /**
@@ -84,11 +101,19 @@ export class MongoInsightRepository implements IInsightRepository {
   ): Promise<Insight[]> {
     const insights = await this.insightModel
       .find({ location })
-      .sort({ generatedAt: -1 })
+      .sort({ createdAt: -1 })
       .limit(limit)
       .exec();
 
-    return insights.map((insight) => insight.toObject() as Insight);
+    return insights.map((insight) => this.mapToEntity(insight.toObject()));
+  }
+
+  /**
+   * Buscar insights por weatherDataId
+   */
+  async findByWeatherDataId(weatherDataId: string): Promise<Insight[]> {
+    const insights = await this.insightModel.find({ weatherDataId });
+    return insights.map(insight => this.mapToEntity(insight.toObject()));
   }
 
   /**

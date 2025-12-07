@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, Inject } from '@nestjs/common';
 import { IUserRepository } from '../../core/domain/repositories/user.repository.interface';
 import { User, UpdateUserDTO } from '../../core/domain/entities/user.entity';
 
@@ -9,7 +9,10 @@ import { User, UpdateUserDTO } from '../../core/domain/entities/user.entity';
  */
 @Injectable()
 export class UserService {
-  constructor(private readonly userRepository: IUserRepository) {}
+  constructor(
+    @Inject('IUserRepository')
+    private readonly userRepository: IUserRepository,
+  ) {}
 
   /**
    * Busca usuário por ID

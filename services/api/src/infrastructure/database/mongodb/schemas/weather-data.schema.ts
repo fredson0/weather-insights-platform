@@ -7,6 +7,12 @@ export class WeatherData extends Document {
   location: string;
 
   @Prop({ required: true })
+  latitude: number;
+
+  @Prop({ required: true })
+  longitude: number;
+
+  @Prop({ required: true })
   temperature: number;
 
   @Prop({ required: true })
@@ -16,12 +22,24 @@ export class WeatherData extends Document {
   windSpeed: number;
 
   @Prop({ required: true })
+  windDirection: number;
+
+  @Prop({ required: true })
   precipitation: number;
 
   @Prop({ required: true })
-  condition: string;
+  pressure: number;
 
   @Prop({ required: true })
+  cloudCover: number;
+
+  @Prop({ required: true })
+  weatherCode: number;
+
+  @Prop({ default: 'open-meteo' })
+  source: string;
+
+  @Prop({ default: Date.now })
   timestamp: Date;
 }
 

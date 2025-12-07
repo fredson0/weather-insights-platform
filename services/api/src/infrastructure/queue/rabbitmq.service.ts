@@ -96,28 +96,31 @@ export class RabbitMQService implements IMessageQueueService, OnModuleInit, OnMo
    * Publica mensagem de dados climáticos na fila
    */
   async publishWeatherData(data: any): Promise<boolean> {
+    return this.publish(this.QUEUE_NAME, data);
+  }
+
+  async publish(queue: string, message: any): Promise<boolean> {
     try {
       if (!this.channel) {
         throw new Error('Canal RabbitMQ não está conectado');
       }
 
-      const message = JSON.stringify(data);
-      const buffer = Buffer.from(message);
+      const messageStr = JSON.stringify(message);
+      const buffer = Buffer.from(messageStr);
 
-      // Publicar mensagem
       const published = this.channel.publish(
         this.EXCHANGE_NAME,
         this.ROUTING_KEY,
         buffer,
         {
-          persistent: true, // Mensagem sobrevive a restart
+          persistent: true,
           contentType: 'application/json',
           timestamp: Date.now(),
         },
       );
 
       if (published) {
-        this.logger.log(`Mensagem publicada: ${data.location} - ${data.temperature}°C`);
+        this.logger.log(`Mensagem publicada na fila ${queue}`);
       }
 
       return published;
@@ -125,5 +128,38 @@ export class RabbitMQService implements IMessageQueueService, OnModuleInit, OnMo
       this.logger.error('Erro ao publicar mensagem no RabbitMQ', error);
       throw error;
     }
+  }
+
+  async consume(
+    queue: string,
+    handler: (message: any) => Promise<void>,
+  ): Promise<void> {
+    try {
+      if (!this.channel) {
+        throw new Error('Canal RabbitMQ não está conectado');
+      }
+
+      await this.channel.consume(queue, async (msg) => {
+        if (msg) {
+          try {
+            const content = JSON.parse(msg.content.toString());
+            await handler(content);
+            this.channel.ack(msg);
+          } catch (error) {
+            this.logger.error('Erro ao processar mensagem', error);
+            this.channel.nack(msg, false, false);
+          }
+        }
+      });
+
+      this.logger.log(`Consumindo mensagens da fila ${queue}`);
+    } catch (error) {
+      this.logger.error('Erro ao consumir mensagens', error);
+      throw error;
+    }
+  }
+
+  async close(): Promise<void> {
+    await this.disconnect();
   }
 }

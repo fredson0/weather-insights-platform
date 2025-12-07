@@ -12,28 +12,26 @@ import { IAIService } from '../../core/ports/ai.port';
 export class AIService implements IAIService {
   constructor(private readonly configService: ConfigService) {}
 
-  /**
-   * Gera insight baseado em dados climáticos usando IA
-   */
-  async generateInsight(
-    weatherData: WeatherData[],
-    location: string,
-  ): Promise<string> {
+  async generateWeatherInsight(
+    weatherData: any[],
+    context?: string,
+  ): Promise<{
+    title: string;
+    description: string;
+    priority: string;
+    metadata: Record<string, any>;
+  }> {
+    const stats = this.calculateStatistics(weatherData);
+    const location = context || 'Unknown';
+    
     try {
-      // Preparar estatísticas dos dados
-      const stats = this.calculateStatistics(weatherData);
-
-      // Montar prompt para a IA
-      const prompt = this.buildPrompt(location, stats, weatherData);
-
-      // Chamar Google Gemini API
       const apiKey = this.configService.get<string>('GEMINI_API_KEY');
-
+      
       if (!apiKey) {
-        // Fallback: retornar insight simples sem IA
-        return this.generateSimpleInsight(location, stats);
+        return this.generateSimpleInsightObject(location, stats);
       }
 
+      const prompt = this.buildPrompt(location, stats, weatherData);
       const response = await fetch(
         `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${apiKey}`,
         {
@@ -48,16 +46,100 @@ export class AIService implements IAIService {
       const data = await response.json();
 
       if (data.candidates && data.candidates[0]) {
-        return data.candidates[0].content.parts[0].text;
+        const aiText = data.candidates[0].content.parts[0].text;
+        return {
+          title: `Análise Climática - ${location}`,
+          description: aiText,
+          priority: stats.avgTemp > 30 ? 'high' : 'medium',
+          metadata: { stats, source: 'gemini-pro' },
+        };
       }
 
-      // Se IA falhar, retornar insight simples
-      return this.generateSimpleInsight(location, stats);
+      return this.generateSimpleInsightObject(location, stats);
     } catch (error) {
-      // Em caso de erro, retornar insight simples
-      const stats = this.calculateStatistics(weatherData);
-      return this.generateSimpleInsight(location, stats);
+      return this.generateSimpleInsightObject(location, stats);
     }
+  }
+
+  async analyzeWeatherTrends(
+    weatherData: any[],
+  ): Promise<{
+    trend: string;
+    prediction: string;
+    confidence: number;
+  }> {
+    const stats = this.calculateStatistics(weatherData);
+    
+    let trend = 'stable';
+    if (weatherData.length >= 2) {
+      const recent = weatherData[0].temperature;
+      const old = weatherData[weatherData.length - 1].temperature;
+      trend = recent > old + 2 ? 'increasing' : recent < old - 2 ? 'decreasing' : 'stable';
+    }
+
+    return {
+      trend,
+      prediction: trend === 'increasing' ? 'Temperatura pode continuar subindo' : 
+                  trend === 'decreasing' ? 'Temperatura pode continuar caindo' : 
+                  'Temperatura deve permanecer estável',
+      confidence: 0.7,
+    };
+  }
+
+  async detectAnomalies(
+    weatherData: any[],
+  ): Promise<{
+    hasAnomaly: boolean;
+    anomalies: Array<{
+      type: string;
+      severity: string;
+      description: string;
+    }>;
+  }> {
+    const stats = this.calculateStatistics(weatherData);
+    const anomalies: Array<{ type: string; severity: string; description: string }> = [];
+
+    if (stats.maxTemp > 40) {
+      anomalies.push({
+        type: 'high_temperature',
+        severity: 'high',
+        description: `Temperatura extrema detectada: ${stats.maxTemp}°C`,
+      });
+    }
+
+    if (stats.totalPrecipitation > 100) {
+      anomalies.push({
+        type: 'heavy_rain',
+        severity: 'medium',
+        description: `Precipitação alta: ${stats.totalPrecipitation}mm`,
+      });
+    }
+
+    return {
+      hasAnomaly: anomalies.length > 0,
+      anomalies,
+    };
+  }
+
+  private generateSimpleInsightObject(location: string, stats: any) {
+    return {
+      title: `Análise Climática - ${location}`,
+      description: this.generateSimpleInsight(location, stats),
+      priority: stats.avgTemp > 30 ? 'high' : 'medium',
+      metadata: { stats, source: 'simple' },
+    };
+  }
+
+  /**
+   * Gera insight baseado em dados climáticos usando IA
+   * @deprecated Use generateWeatherInsight instead
+   */
+  async generateInsight(
+    weatherData: WeatherData[],
+    location: string,
+  ): Promise<string> {
+    const result = await this.generateWeatherInsight(weatherData, location);
+    return result.description;
   }
 
   /**

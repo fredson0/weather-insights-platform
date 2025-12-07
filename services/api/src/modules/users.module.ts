@@ -9,6 +9,7 @@ import { GetUserByIdUseCase } from '../core/domain/use-cases/users/get-user-by-i
 import { GetUsersUseCase } from '../core/domain/use-cases/users/get-users.use-case';
 import { UpdateUserUseCase } from '../core/domain/use-cases/users/update-user.use-case';
 import { DeleteUserUseCase } from '../core/domain/use-cases/users/delete-user.use-case';
+import { UserSeed } from '../infrastructure/database/seeds/user.seed';
 
 /**
  * Módulo de Usuários
@@ -18,6 +19,7 @@ import { DeleteUserUseCase } from '../core/domain/use-cases/users/delete-user.us
   controllers: [UsersController],
   providers: [
     UserService,
+    UserSeed,
     {
       provide: 'IUserRepository',
       useClass: MongoUserRepository,

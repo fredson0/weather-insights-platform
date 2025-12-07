@@ -26,17 +26,38 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .setTitle('GDASH Weather Insights API')
-    .setDescription('API para monitoramento climático com insights de IA')
-    .setVersion('1.0')
-    .addTag('auth', 'Autenticação')
-    .addTag('users', 'Gerenciamento de usuários')
-    .addTag('weather', 'Dados climáticos')
-    .addTag('insights', 'Insights gerados por IA')
-    .addBearerAuth()
+    .setDescription(
+      'Sistema de monitoramento climático em tempo real com insights gerados por IA.\n\n' +
+      '**Pipeline:** Python Collector → RabbitMQ → Go Worker → NestJS API → MongoDB\n\n' +
+      '**Credenciais padrão:**\n' +
+      '- Email: admin@example.com\n' +
+      '- Senha: 123456'
+    )
+    .setVersion('1.0.0')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        name: 'Authorization',
+        description: 'Cole o token JWT recebido no login',
+        in: 'header',
+      },
+      'JWT-auth',
+    )
+    .addServer('http://localhost:3000', 'Desenvolvimento Local')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
+  SwaggerModule.setup('api', app, document, {
+    customSiteTitle: 'GDASH Weather API',
+    customCss: '.swagger-ui .topbar { display: none }',
+    swaggerOptions: {
+      persistAuthorization: true,
+      tagsSorter: 'alpha',
+      operationsSorter: 'alpha',
+    },
+  });
 
   app.getHttpAdapter().get('/health', (req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });

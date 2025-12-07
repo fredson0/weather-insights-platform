@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { User } from '../entities/user.entity';
-import { IUserRepository } from '../repositories/user.repository.interface';
+import * as bcrypt from 'bcrypt';
+import { User } from '../../entities/user.entity';
+import { IUserRepository } from '../../repositories/user.repository.interface';
 
 export class RegisterUserDto {
   name: string;
@@ -24,8 +25,11 @@ export class RegisterUserUseCase {
       throw new Error('User already exists');
     }
 
+    const hashedPassword = await bcrypt.hash(dto.password, 10);
+
     const user = new this.userModel({
       ...dto,
+      password: hashedPassword,
       role: dto.role || 'user',
     });
 
@@ -35,7 +39,9 @@ export class RegisterUserUseCase {
       id: savedUser._id.toString(),
       name: savedUser.name,
       email: savedUser.email,
+      password: savedUser.password,
       role: savedUser.role,
+      isActive: savedUser.isActive ?? true,
       createdAt: savedUser.createdAt,
       updatedAt: savedUser.updatedAt,
     };

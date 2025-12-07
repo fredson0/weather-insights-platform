@@ -12,10 +12,10 @@ logger = logging.getLogger(__name__)
 class WeatherCollector:
     """Coletor de dados meteorológicos da Open-Meteo API"""
     
-    def __init__(self):
+    def __init__(self, latitude: float = None, longitude: float = None):
         self.api_url = settings.OPEN_METEO_API_URL
-        self.latitude = settings.LATITUDE
-        self.longitude = settings.LONGITUDE
+        self.latitude = latitude if latitude is not None else settings.LATITUDE
+        self.longitude = longitude if longitude is not None else settings.LONGITUDE
         self.location_name = settings.LOCATION_NAME
         self.timeout = settings.HTTP_TIMEOUT
     
@@ -33,7 +33,7 @@ class WeatherCollector:
             params = {
                 'latitude': self.latitude,
                 'longitude': self.longitude,
-                'current': 'temperature_2m,relative_humidity_2m,wind_speed_10m,precipitation',
+                'current': 'temperature_2m,relative_humidity_2m,wind_speed_10m,wind_direction_10m,precipitation,pressure_msl,cloud_cover,weather_code',
                 'timezone': 'America/Sao_Paulo'
             }
             
@@ -51,11 +51,16 @@ class WeatherCollector:
             # Extrai dados
             weather_data = WeatherData(
                 location=self.location_name,
+                latitude=self.latitude,
+                longitude=self.longitude,
                 temperature=current.get('temperature_2m', 0.0),
                 humidity=current.get('relative_humidity_2m', 0.0),
                 windSpeed=current.get('wind_speed_10m', 0.0),
+                windDirection=current.get('wind_direction_10m', 0.0),
                 precipitation=current.get('precipitation', 0.0),
-                condition=self._get_condition(current)
+                pressure=current.get('pressure_msl', 1013.0),
+                cloudCover=current.get('cloud_cover', 0.0),
+                weatherCode=current.get('weather_code', 0)
             )
             
             logger.info(f'Dados coletados: {weather_data}')

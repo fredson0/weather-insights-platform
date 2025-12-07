@@ -1,3 +1,4 @@
+import * as bcrypt from 'bcrypt';
 import { User } from '../entities/user.entity';
 import { IUserRepository } from '../repositories/user.repository.interface';
 
@@ -20,7 +21,7 @@ export class AuthenticateUserUseCase implements IAuthenticateUserUseCase {
 
     if (!user.isActive) return null;
 
-    const isPasswordValid = await this.userRepository.comparePassword(user.id, password);
+    const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) return null;
 
     return user;

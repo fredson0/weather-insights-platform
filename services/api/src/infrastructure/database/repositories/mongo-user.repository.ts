@@ -5,8 +5,8 @@ import {
   User,
   CreateUserDTO,
   UpdateUserDTO,
-} from '../../../../core/domain/entities/user.entity';
-import { IUserRepository } from '../../../../core/domain/repositories/user.repository.interface';
+} from '../../../core/domain/entities/user.entity';
+import { IUserRepository } from '../../../core/domain/repositories/user.repository.interface';
 import { UserDocument } from '../mongodb/schemas/user.schema';
 
 /**
@@ -19,23 +19,36 @@ export class MongoUserRepository implements IUserRepository {
     @InjectModel('User') private readonly userModel: Model<UserDocument>,
   ) {}
 
+  private mapToEntity(doc: any): User {
+    return {
+      id: doc._id?.toString() || doc.id,
+      email: doc.email,
+      name: doc.name,
+      password: doc.password,
+      role: doc.role,
+      isActive: doc.isActive ?? true,
+      createdAt: doc.createdAt || new Date(),
+      updatedAt: doc.updatedAt || new Date(),
+    };
+  }
+
   /** Cria um novo usuário */
   async create(data: CreateUserDTO): Promise<User> {
     const user = new this.userModel(data);
     const saved = await user.save();
-    return saved.toObject();
+    return this.mapToEntity(saved.toObject());
   }
 
   /** Busca usuário por ID */
   async findById(id: string): Promise<User | null> {
     const user = await this.userModel.findById(id).exec();
-    return user ? (user.toObject() as User) : null;
+    return user ? this.mapToEntity(user.toObject()) : null;
   }
 
   /** Busca usuário por email */
   async findByEmail(email: string): Promise<User | null> {
     const user = await this.userModel.findOne({ email }).exec();
-    return user ? (user.toObject() as User) : null;
+    return user ? this.mapToEntity(user.toObject()) : null;
   }
 
   /** Busca todos os usuários com filtros opcionais */
@@ -64,7 +77,7 @@ export class MongoUserRepository implements IUserRepository {
     }
 
     const users = await query.exec();
-    return users.map((user) => user.toObject() as User);
+    return users.map((user) => this.mapToEntity(user.toObject()));
   }
 
   /** Atualiza usuário por ID */
@@ -72,7 +85,7 @@ export class MongoUserRepository implements IUserRepository {
     const user = await this.userModel
       .findByIdAndUpdate(id, data, { new: true })
       .exec();
-    return user ? (user.toObject() as User) : null;
+    return user ? this.mapToEntity(user.toObject()) : null;
   }
 
   /** Deleta usuário por ID */

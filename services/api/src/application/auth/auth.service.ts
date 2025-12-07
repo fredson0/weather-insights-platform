@@ -1,8 +1,8 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { RegisterUserUseCase } from '../../core/domain/use-cases/register-user.use-case';
-import { AuthenticateUserUseCase } from '../../core/domain/use-cases/authenticate-user.use-case';
+import { RegisterUserUseCase } from '../../core/domain/use-cases/users/register-user.use-case';
+import { AuthenticateUserUseCase } from '../../core/domain/use-cases/users/authenticate-user.use-case';
 import { User } from '../../core/domain/entities/user.entity';
 
 /**
@@ -29,13 +29,12 @@ export class AuthService {
    * Autentica usuário e retorna token JWT
    */
   async login(email: string, password: string): Promise<{ user: User; accessToken: string }> {
-    const user = await this.authenticateUserUseCase.execute({ email, password });
-
-    // Gerar token JWT
-    const payload = { sub: user.id, email: user.email, role: user.role };
-    const accessToken = this.jwtService.sign(payload);
-
-    return { user, accessToken };
+    const result = await this.authenticateUserUseCase.execute({ email, password });
+    
+    return { 
+      user: result.user as User, 
+      accessToken: result.access_token 
+    };
   }
 
   /**

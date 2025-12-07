@@ -29,7 +29,7 @@ services:
     restart: unless-stopped
     ports:
       - "5672:5672"
-      - "15672:15672"  # Management UI
+      - "15672:15672"  
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-admin}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-admin123}
@@ -65,6 +65,11 @@ services:
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-Admin@123456}
       ADMIN_NAME: ${ADMIN_NAME:-Administrator}
       GOOGLE_GEMINI_API_KEY: ${GOOGLE_GEMINI_API_KEY:-}
+      RABBITMQ_HOST: ${RABBITMQ_HOST:-rabbitmq}
+      RABBITMQ_PORT: ${RABBITMQ_PORT:-5672}
+      RABBITMQ_USER: ${RABBITMQ_USER:-admin}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-admin123}
+      RABBITMQ_VHOST: ${RABBITMQ_VHOST:-/}
     volumes:
       - ../../services/api/src:/app/src
       - /app/node_modules
@@ -148,16 +153,17 @@ services:
       dockerfile: Dockerfile
       target: development
       args:
-        VITE_API_URL: ${VITE_API_URL:-http://localhost:3000}
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:3000/api}
     container_name: gdash-web
     restart: unless-stopped
     ports:
       - "5173:5173"
     environment:
-      VITE_API_URL: ${VITE_API_URL:-http://localhost:3000}
+      VITE_API_URL: ${VITE_API_URL:-http://localhost:3000/api}
       VITE_APP_TITLE: ${VITE_APP_TITLE:-GDASH Weather Insights}
     volumes:
       - ../../services/web/src:/app/src
+      - ../../services/web/.env:/app/.env
       - /app/node_modules
     depends_on:
       - api

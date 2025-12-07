@@ -3,7 +3,7 @@ import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { firstValueFrom } from 'rxjs';
 import { CreateWeatherDataDTO } from '../../core/domain/entities/weather.entity';
-import { IExternalAPIClient } from '../../core/ports/external-api.port';
+import { IExternalAPIClient, RequestOptions } from '../../core/ports/external-api.port';
 
 /**
  * Serviço de integração com API Open-Meteo
@@ -19,6 +19,42 @@ export class OpenMeteoService implements IExternalAPIClient {
     private readonly configService: ConfigService,
   ) {}
 
+  async fetch<T>(endpoint: string, options?: RequestOptions): Promise<T> {
+    try {
+      const response = await firstValueFrom(
+        this.httpService.get(`${this.BASE_URL}${endpoint}`, {
+          params: options?.params,
+          headers: options?.headers,
+          timeout: options?.timeout || 5000,
+        }),
+      );
+      return response.data as T;
+    } catch (error) {
+      throw new HttpException(
+        `Erro ao buscar dados da API: ${error.message}`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async post<T>(endpoint: string, data: any, options?: RequestOptions): Promise<T> {
+    try {
+      const response = await firstValueFrom(
+        this.httpService.post(`${this.BASE_URL}${endpoint}`, data, {
+          params: options?.params,
+          headers: options?.headers,
+          timeout: options?.timeout || 5000,
+        }),
+      );
+      return response.data as T;
+    } catch (error) {
+      throw new HttpException(
+        `Erro ao enviar dados para API: ${error.message}`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
   /**
    * Busca dados climáticos atuais para uma localização
    */
@@ -27,19 +63,16 @@ export class OpenMeteoService implements IExternalAPIClient {
     longitude?: number,
   ): Promise<CreateWeatherDataDTO> {
     try {
-      // Obter coordenadas do .env se não fornecidas
-      const lat = latitude || this.configService.get<number>('WEATHER_LATITUDE');
-      const lon = longitude || this.configService.get<number>('WEATHER_LONGITUDE');
+      const lat = latitude || this.configService.get<number>('WEATHER_LATITUDE', -12.9714);
+      const lon = longitude || this.configService.get<number>('WEATHER_LONGITUDE', -38.5014);
 
-      // Montar parâmetros da requisição
       const params = {
         latitude: lat,
         longitude: lon,
-        current: 'temperature_2m,relative_humidity_2m,wind_speed_10m,precipitation,weather_code',
+        current: 'temperature_2m,relative_humidity_2m,wind_speed_10m,wind_direction_10m,precipitation,pressure_msl,cloud_cover,weather_code',
         timezone: 'America/Sao_Paulo',
       };
 
-      // Fazer requisição HTTP para Open-Meteo
       const response = await firstValueFrom(
         this.httpService.get(this.BASE_URL, { params }),
       );
@@ -47,20 +80,23 @@ export class OpenMeteoService implements IExternalAPIClient {
       const data = response.data;
       const current = data.current;
 
-      // Obter nome da localização
       const locationName =
-        this.configService.get<string>('WEATHER_LOCATION_NAME') ||
-        `${lat},${lon}`;
+        this.configService.get<string>('WEATHER_LOCATION_NAME') || 'Salvador';
 
-      // Retornar dados formatados
       return {
         location: locationName,
+        latitude: lat,
+        longitude: lon,
         timestamp: new Date(current.time),
-        temperature: current.temperature_2m,
-        humidity: current.relative_humidity_2m,
-        windSpeed: current.wind_speed_10m,
-        precipitation: current.precipitation,
-        weatherCode: current.weather_code,
+        temperature: current.temperature_2m || 0,
+        humidity: current.relative_humidity_2m || 0,
+        windSpeed: current.wind_speed_10m || 0,
+        windDirection: current.wind_direction_10m || 0,
+        precipitation: current.precipitation || 0,
+        pressure: current.pressure_msl || 1013,
+        cloudCover: current.cloud_cover || 0,
+        weatherCode: current.weather_code || 0,
+        source: 'open-meteo',
       };
     } catch (error) {
       throw new HttpException(

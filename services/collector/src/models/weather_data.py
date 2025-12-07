@@ -11,11 +11,17 @@ class WeatherData:
     """Dados meteorológicos para publicação no RabbitMQ"""
     
     location: str
+    latitude: float
+    longitude: float
     temperature: float
     humidity: float
     windSpeed: float
+    windDirection: float
     precipitation: float
-    condition: Optional[str] = None
+    pressure: float
+    cloudCover: float
+    weatherCode: int
+    source: str = "open-meteo"
     timestamp: Optional[str] = None
     
     def __post_init__(self):

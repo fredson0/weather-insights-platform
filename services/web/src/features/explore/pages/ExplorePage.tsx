@@ -17,6 +17,7 @@ export function ExplorePage() {
     try {
       setLoading(true);
       const response = await api.get<Insight[]>('/insights?limit=10');
+      console.log('📊 Insights recebidos da API:', response.data);
       setInsights(response.data);
     } catch (error) {
       console.error('Erro ao buscar insights:', error);
@@ -28,7 +29,9 @@ export function ExplorePage() {
   const handleGenerateInsight = async () => {
     try {
       setGenerating(true);
-      await api.post('/insights/generate');
+      await api.post('/insights/generate', {
+        location: 'Salvador, BA'
+      });
       await fetchInsights();
     } catch (error) {
       console.error('Erro ao gerar insight:', error);
@@ -39,12 +42,14 @@ export function ExplorePage() {
 
   const getTypeColor = (type: string) => {
     switch (type) {
-      case 'prediction':
+      case 'trend_prediction':
         return 'bg-blue-100 text-blue-800';
-      case 'analysis':
+      case 'weather_analysis':
         return 'bg-green-100 text-green-800';
       case 'recommendation':
         return 'bg-purple-100 text-purple-800';
+      case 'anomaly_detection':
+        return 'bg-red-100 text-red-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
@@ -52,12 +57,14 @@ export function ExplorePage() {
 
   const getTypeIcon = (type: string) => {
     switch (type) {
-      case 'prediction':
+      case 'trend_prediction':
         return '🔮';
-      case 'analysis':
+      case 'weather_analysis':
         return '📊';
       case 'recommendation':
         return '💡';
+      case 'anomaly_detection':
+        return '⚠️';
       default:
         return '📝';
     }
@@ -119,7 +126,7 @@ export function ExplorePage() {
                   </h3>
                   
                   <p className="text-gray-700 text-sm leading-relaxed whitespace-pre-line">
-                    {insight.content}
+                    {insight.description}
                   </p>
                 </div>
               ))}

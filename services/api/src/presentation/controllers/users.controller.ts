@@ -11,6 +11,7 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { UserService } from '../../application';
 import { JwtAuthGuard, RolesGuard } from '../guards';
 import { Roles, CurrentUser } from '../../shared/decorators';
@@ -20,6 +21,8 @@ import { CreateUserDTO, UpdateUserDTO } from '../dtos/users';
 /**
  * Controller de usuários (rotas protegidas por JWT)
  */
+@ApiTags('2. Gerenciamento de Usuários')
+@ApiBearerAuth('JWT-auth')
 @Controller('users')
 @UseGuards(JwtAuthGuard)
 export class UsersController {

@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
-import { GenerateInsightUseCase } from '../../core/domain/use-cases/generate-insight.use-case';
-import { GetInsightsUseCase } from '../../core/domain/use-cases/get-insights.use-case';
+import { Injectable, Inject } from '@nestjs/common';
+import { GenerateInsightUseCase } from '../../core/domain/use-cases/insights/generate-insight.use-case';
+import { GetInsightsUseCase } from '../../core/domain/use-cases/insights/get-insights.use-case';
 import { Insight, InsightQueryParams } from '../../core/domain/entities/insight.entity';
 import { IInsightRepository } from '../../core/domain/repositories/insight.repository.interface';
 
@@ -14,6 +14,7 @@ export class InsightService {
   constructor(
     private readonly generateInsightUseCase: GenerateInsightUseCase,
     private readonly getInsightsUseCase: GetInsightsUseCase,
+    @Inject('IInsightRepository')
     private readonly insightRepository: IInsightRepository,
   ) {}
 
@@ -21,7 +22,7 @@ export class InsightService {
    * Gera novo insight para uma localização
    */
   async generate(location: string, startDate: Date, endDate: Date): Promise<Insight> {
-    return await this.generateInsightUseCase.execute({ location, startDate, endDate });
+    return await this.generateInsightUseCase.execute(location, startDate, endDate);
   }
 
   /**

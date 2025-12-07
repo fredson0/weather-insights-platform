@@ -20,7 +20,7 @@ export interface RegisterData {
 }
 
 export interface AuthResponse {
-  access_token: string;
+  accessToken: string;
   user: User;
 }
 
@@ -48,9 +48,10 @@ export interface WeatherStats {
 export interface Insight {
   id: string;
   title: string;
-  content: string;
-  type: 'prediction' | 'analysis' | 'recommendation';
-  weatherDataId: string;
+  description: string;
+  type: 'weather_analysis' | 'trend_prediction' | 'anomaly_detection' | 'recommendation';
+  priority: 'low' | 'medium' | 'high' | 'critical';
+  location?: string;
   createdAt: string;
 }
 
