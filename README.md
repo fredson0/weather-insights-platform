@@ -28,7 +28,7 @@ Monitoramento climático em tempo real com gráficos interativos de temperatura,
 ### Insights de IA
 Análises automáticas geradas por IA sobre as condições climáticas.
 
-![Insights](docs/images/insights.png)
+![Insights](docs/images/insight.png)
 
 ### Gerenciamento de Usuários
 Painel administrativo para controle de acesso e gestão de usuários.
@@ -307,7 +307,7 @@ Este projeto demonstra:
 **Fredson Santana Machado Filho**
 
 - GitHub: [@fredson0](https://github.com/fredson0)
-- LinkedIn: [linkedin.com/in/fredson0](https://linkedin.com/in/fredson0)
+- LinkedIn: [linkedin.com/in/fredson-santana-machado-filho-912655329](https://www.linkedin.com/in/fredson-santana-machado-filho-912655329/)
 
 
 ---
