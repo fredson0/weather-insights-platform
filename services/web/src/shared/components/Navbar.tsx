@@ -14,31 +14,31 @@ export function Navbar() {
   };
 
   return (
-    <nav className="bg-white shadow-sm border-b border-gray-200">
+    <nav className="sticky top-0 z-20 border-b border-white/10 bg-black/30 backdrop-blur-xl">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
-          <div className="flex">
-            <Link to="/" className="flex items-center">
-              <span className="text-2xl font-bold text-blue-600">🌦️ GDASH</span>
+        <div className="flex h-16 items-center justify-between">
+          <div className="flex items-center gap-6">
+            <Link to="/" className="flex items-center gap-2">
+              <span className="text-2xl font-semibold text-white">🌦️ Weather Insights</span>
             </Link>
 
-            <div className="hidden sm:ml-8 sm:flex sm:space-x-4">
+            <div className="hidden sm:flex items-center gap-6 text-sm">
               <Link
                 to="/"
-                className={`inline-flex items-center px-3 py-2 text-sm font-medium ${
+                className={`transition ${
                   isActive('/')
-                    ? 'text-blue-600 border-b-2 border-blue-600'
-                    : 'text-gray-600 hover:text-gray-900'
+                    ? 'text-white'
+                    : 'text-white/60 hover:text-white'
                 }`}
               >
                 Dashboard
               </Link>
               <Link
                 to="/explore"
-                className={`inline-flex items-center px-3 py-2 text-sm font-medium ${
+                className={`transition ${
                   isActive('/explore')
-                    ? 'text-blue-600 border-b-2 border-blue-600'
-                    : 'text-gray-600 hover:text-gray-900'
+                    ? 'text-white'
+                    : 'text-white/60 hover:text-white'
                 }`}
               >
                 Insights
@@ -46,27 +46,27 @@ export function Navbar() {
               {user?.role === 'admin' && (
                 <Link
                   to="/users"
-                  className={`inline-flex items-center px-3 py-2 text-sm font-medium ${
+                  className={`transition ${
                     isActive('/users')
-                      ? 'text-blue-600 border-b-2 border-blue-600'
-                      : 'text-gray-600 hover:text-gray-900'
+                      ? 'text-white'
+                      : 'text-white/60 hover:text-white'
                   }`}
                 >
-                  Usuários
+                  Users
                 </Link>
               )}
             </div>
           </div>
 
-          <div className="flex items-center space-x-4">
-            <span className="text-sm text-gray-700">
-              Olá, <span className="font-medium">{user?.name}</span>
+          <div className="flex items-center gap-4 text-sm text-white/70">
+            <span>
+              Hello, <span className="text-white">{user?.name}</span>
             </span>
             <button
               onClick={handleLogout}
-              className="text-sm text-gray-600 hover:text-gray-900 font-medium"
+              className="rounded-full border border-white/20 px-3 py-1 text-white/80 transition hover:border-white/40 hover:text-white"
             >
-              Sair
+              Logout
             </button>
           </div>
         </div>

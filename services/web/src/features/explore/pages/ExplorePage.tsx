@@ -74,28 +74,31 @@ export function ExplorePage() {
     return (
       <>
         <Navbar />
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="flex items-center justify-center min-h-screen bg-[#0b0f16]">
+          <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-white/60"></div>
         </div>
       </>
     );
   }
 
   return (
-    <>
+    <div className="min-h-screen bg-[#0b0f16] text-white">
       <Navbar />
-      <div className="min-h-screen bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="relative">
+        <div className="absolute inset-0 bg-[url('/dashboard-bg.png.png')] bg-[length:115%_115%] bg-[position:40%_50%] opacity-90 animate-[dashboard-drift_28s_ease-in-out_infinite]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0b0f16]/30 via-[#0b0f16]/70 to-[#0b0f16]" />
+        <div className="relative z-10 w-full px-8 sm:px-10 lg:px-12 py-14">
+        <div className="mx-auto max-w-[1500px]">
           {/* Header */}
           <div className="flex justify-between items-center mb-8">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Insights de IA</h1>
-              <p className="text-gray-600 mt-1">Análises e previsões geradas por Google Gemini</p>
+              <h1 className="text-4xl font-semibold tracking-tight text-white">Insights de IA</h1>
+              <p className="mt-2 text-white/70">Análises e previsões geradas por Google Gemini</p>
             </div>
             <button
               onClick={handleGenerateInsight}
               disabled={generating}
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="rounded-full border border-sky-400/40 bg-sky-500/20 px-5 py-2 text-sm font-medium text-sky-100 backdrop-blur transition hover:bg-sky-500/30 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {generating ? 'Gerando...' : '✨ Gerar Novo Insight'}
             </button>
@@ -103,29 +106,29 @@ export function ExplorePage() {
 
           {/* Insights Grid */}
           {insights.length === 0 ? (
-            <div className="bg-white rounded-lg shadow p-12 text-center">
+            <div className="rounded-3xl border border-white/10 bg-white/10 p-12 text-center backdrop-blur-xl">
               <div className="text-6xl mb-4">🤖</div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Nenhum insight gerado ainda</h3>
-              <p className="text-gray-600 mb-6">Clique em "Gerar Novo Insight" para criar análises com IA</p>
+              <h3 className="mb-2 text-xl font-semibold text-white">Nenhum insight gerado ainda</h3>
+              <p className="mb-6 text-white/70">Clique em "Gerar Novo Insight" para criar análises com IA</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {insights.map((insight) => (
-                <div key={insight.id} className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow">
+                <div key={insight.id} className="rounded-3xl border border-white/10 bg-white/10 p-6 backdrop-blur-xl transition hover:bg-white/15">
                   <div className="flex items-start justify-between mb-3">
                     <span className={`px-3 py-1 rounded-full text-xs font-medium ${getTypeColor(insight.type)}`}>
                       {getTypeIcon(insight.type)} {insight.type}
                     </span>
-                    <span className="text-xs text-gray-500">
+                    <span className="text-xs text-white/60">
                       {format(new Date(insight.createdAt), 'dd/MM HH:mm')}
                     </span>
                   </div>
                   
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  <h3 className="mb-2 text-lg font-semibold text-white">
                     {insight.title}
                   </h3>
                   
-                  <p className="text-gray-700 text-sm leading-relaxed whitespace-pre-line">
+                  <p className="whitespace-pre-line text-sm leading-relaxed text-white/80">
                     {insight.description}
                   </p>
                 </div>
@@ -133,7 +136,8 @@ export function ExplorePage() {
             </div>
           )}
         </div>
+        </div>
       </div>
-    </>
+    </div>
   );
 }

@@ -88,83 +88,86 @@ export function UsersPage() {
     return (
       <>
         <Navbar />
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="flex items-center justify-center min-h-screen bg-[#0b0f16]">
+          <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-white/60"></div>
         </div>
       </>
     );
   }
 
   return (
-    <>
+    <div className="min-h-screen bg-[#0b0f16] text-white">
       <Navbar />
-      <div className="min-h-screen bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="relative">
+        <div className="absolute inset-0 bg-[url('/dashboard-bg.png.png')] bg-[length:115%_115%] bg-[position:40%_50%] opacity-90 animate-[dashboard-drift_28s_ease-in-out_infinite]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0b0f16]/30 via-[#0b0f16]/70 to-[#0b0f16]" />
+        <div className="relative z-10 w-full px-8 sm:px-10 lg:px-12 py-14">
+        <div className="mx-auto max-w-[1500px]">
           {/* Header */}
           <div className="flex justify-between items-center mb-8">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Gerenciar Usuários</h1>
-              <p className="text-gray-600 mt-1">Área administrativa</p>
+              <h1 className="text-4xl font-semibold tracking-tight text-white">Gerenciar Usuários</h1>
+              <p className="mt-2 text-white/70">Área administrativa</p>
             </div>
             <button
               onClick={handleCreate}
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              className="rounded-full border border-sky-400/40 bg-sky-500/20 px-5 py-2 text-sm font-medium text-sky-100 backdrop-blur transition hover:bg-sky-500/30"
             >
               ➕ Novo Usuário
             </button>
           </div>
 
           {/* Users Table */}
-          <div className="bg-white rounded-lg shadow overflow-hidden">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+          <div className="overflow-hidden rounded-3xl border border-white/10 bg-white/10 backdrop-blur-xl">
+            <table className="min-w-full divide-y divide-white/10">
+              <thead className="bg-white/5">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-white/60">
                     Nome
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-white/60">
                     Email
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-white/60">
                     Role
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-white/60">
                     Criado em
                   </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-white/60">
                     Ações
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="divide-y divide-white/10 bg-transparent">
                 {users.map((user) => (
                   <tr key={user.id}>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">{user.name}</div>
+                      <div className="text-sm font-medium text-white">{user.name}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-500">{user.email}</div>
+                      <div className="text-sm text-white/70">{user.email}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                        user.role === 'admin' ? 'bg-purple-100 text-purple-800' : 'bg-green-100 text-green-800'
+                        user.role === 'admin' ? 'bg-purple-300/20 text-purple-100' : 'bg-emerald-300/20 text-emerald-100'
                       }`}>
                         {user.role}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-white/70">
                       {format(new Date(user.createdAt), 'dd/MM/yyyy')}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <button
                         onClick={() => handleEdit(user)}
-                        className="text-blue-600 hover:text-blue-900 mr-4"
+                        className="mr-4 text-sky-300 hover:text-sky-200"
                       >
                         Editar
                       </button>
                       <button
                         onClick={() => handleDelete(user.id)}
-                        className="text-red-600 hover:text-red-900"
+                        className="text-rose-300 hover:text-rose-200"
                       >
                         Excluir
                       </button>
@@ -174,6 +177,7 @@ export function UsersPage() {
               </tbody>
             </table>
           </div>
+        </div>
         </div>
       </div>
 
@@ -252,6 +256,6 @@ export function UsersPage() {
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 }

@@ -28,11 +28,18 @@ export interface AuthResponse {
 export interface WeatherData {
   id: string;
   location: string;
+  latitude?: number;
+  longitude?: number;
   temperature: number;
   humidity: number;
   windSpeed: number;
+  windDirection?: number;
   precipitation: number;
+  pressure?: number;
+  cloudCover?: number;
+  weatherCode?: number;
   condition: string;
+  source?: string;
   timestamp: string;
   createdAt: string;
 }
