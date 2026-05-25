@@ -19,9 +19,9 @@ export class UserSeed implements OnModuleInit {
 
   private async seedDefaultUser() {
     try {
-      const defaultEmail = process.env.DEFAULT_USER_EMAIL || 'admin@example.com';
-      const defaultPassword = process.env.DEFAULT_USER_PASSWORD || '123456';
-      const defaultName = process.env.DEFAULT_USER_NAME || 'Admin';
+      const defaultEmail = process.env.ADMIN_EMAIL || process.env.DEFAULT_USER_EMAIL || 'admin@example.com';
+      const defaultPassword = process.env.ADMIN_PASSWORD || process.env.DEFAULT_USER_PASSWORD || '123456';
+      const defaultName = process.env.ADMIN_NAME || process.env.DEFAULT_USER_NAME || 'Admin';
 
       // Verificar se já existe
       const existingUser = await this.userModel.findOne({ email: defaultEmail }).exec();

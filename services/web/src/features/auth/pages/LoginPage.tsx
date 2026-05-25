@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/core/contexts/AuthContext';
-import { StormBackground } from '@/shared/components/StormBackground';
+import { ShaderBackground } from '@/shared/components/ui/animated-shader-hero';
 import { LoginCard } from '@/shared/components/LoginCard';
 
 export function LoginPage() {
@@ -19,7 +19,7 @@ export function LoginPage() {
 
     try {
       await login({ email, password });
-      navigate('/');
+      navigate('/dashboard');
     } catch (err: any) {
       setError(err.response?.data?.message || 'Erro ao fazer login');
     } finally {
@@ -28,9 +28,10 @@ export function LoginPage() {
   };
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-slate-950">
-      <StormBackground />
-      <div className="relative z-10 flex w-full items-center justify-center p-4">
+    <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-transparent">
+      <ShaderBackground />
+      <div className="pointer-events-none absolute inset-0 z-10 bg-slate-950/35" />
+      <div className="relative z-20 flex w-full items-center justify-center p-4">
         <LoginCard
           email={email}
           password={password}

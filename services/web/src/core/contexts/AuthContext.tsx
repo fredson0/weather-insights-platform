@@ -22,7 +22,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const token = localStorage.getItem('token');
     if (token) {
       // Buscar dados do usuário
-      api.get<User>('/auth/profile')
+      api.get<User>('/users/me')
         .then(res => setUser(res.data))
         .catch(() => {
           localStorage.removeItem('token');

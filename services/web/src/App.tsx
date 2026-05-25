@@ -3,6 +3,7 @@ import { ProtectedRoute, PublicRoute } from './core/router/ProtectedRoute';
 import { LoginPage } from './features/auth/pages/LoginPage';
 import { RegisterPage } from './features/auth/pages/RegisterPage';
 import { DashboardPage } from './features/dashboard/pages/DashboardPage';
+import LandingPage from './features/auth/pages/LandingPage';
 import { ExplorePage } from './features/explore/pages/ExplorePage';
 import { UsersPage } from './features/users/pages/UsersPage';
 
@@ -28,9 +29,19 @@ function App() {
           } 
         />
 
+        {/* Public landing */}
+        <Route
+          path="/"
+          element={
+            <PublicRoute>
+              <LandingPage />
+            </PublicRoute>
+          }
+        />
+
         {/* Protected Routes */}
         <Route 
-          path="/" 
+          path="/dashboard" 
           element={
             <ProtectedRoute>
               <DashboardPage />
