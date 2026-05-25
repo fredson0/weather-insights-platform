@@ -26,7 +26,7 @@ const LandingPage: React.FC = () => {
           <div
             className="relative overflow-hidden rounded-[32px] border border-white/10 shadow-2xl"
             style={{
-              backgroundImage: "linear-gradient(135deg, rgba(255,255,255,0.92), rgba(255,255,255,0.84)), url('https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1600&q=80')",
+              backgroundImage: "linear-gradient(135deg, rgba(255,255,255,0.93), rgba(255,255,255,0.86)), url('https://images.unsplash.com/photo-1428592953211-077101b2021b?auto=format&fit=crop&w=1600&q=80')",
               backgroundSize: 'cover',
               backgroundPosition: 'center',
             }}
