@@ -17,6 +17,13 @@ Sistema full-stack de monitoramento climático em tempo real com pipeline de dad
 
 ## 📸 Screenshots
 
+### Landing Page (Início)
+Tela inicial com apresentação do projeto e acesso para autenticação.
+
+![Home 1](docs/images/home1.png)
+
+![Home 2](docs/images/home2.png)
+
 ### Tela de Login
 ![Login](docs/images/login.png)
 
@@ -39,8 +46,6 @@ Painel administrativo para controle de acesso e gestão de usuários.
 API RESTful totalmente documentada com Swagger, organizada por módulos funcionais.
 
 ![Swagger](docs/images/swagger-1.png)
-
-![Swagger Detalhes](docs/images/swagger-2.png)
 
 ## 🎯 Sobre o Projeto
 
